@@ -1,0 +1,10 @@
+.lane {
+    min-height: 300px;
+    border: 1px dashed #ccc;
+    padding: 10px;
+    border-radius: 5px;
+  }
+  .card {
+    margin-bottom: 10px;
+    cursor: move;
+}
