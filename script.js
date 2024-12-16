@@ -1,125 +1,139 @@
-// DOM Elements - Grouping all our element selections at the top
-const elements = {
-    todoLane: document.getElementById('todo'),
-    completedLane: document.getElementById('completed'),
-    addCardButton: document.getElementById('addCard'),
-    cardInput: document.getElementById('cardInput'),
-    lanesContainer: document.getElementById('lanes-container'),
-    addLaneButton: document.getElementById('addLane'),
-    laneInput: document.getElementById('laneInput'),
-    laneSelect: document.getElementById('laneSelect')
-};
-
-// Card Functions
-function createCard(taskName) {
-    // Create main card element
-    const card = document.createElement('div');
-    card.className = 'card p-2 bg-white shadow';
-    card.draggable = true;
-    
-    // Create card content
-    const content = `
-        <div class="d-flex justify-content-between align-items-center">
-            <span>${taskName}</span>
-            <button class="btn btn-danger btn-sm ms-2">&times;</button>
-        </div>
-    `;
-    card.innerHTML = content;
-    
-    // Add delete functionality
-    card.querySelector('button').onclick = () => card.remove();
-    
-    // Add drag functionality
-    setupCardDrag(card);
-    
-    return card;
+// Add Card
+let addCardButton = document.querySelector('#addCardButton');
+addCardButton.addEventListener('click', addCard);
+function addCard() {
+  let cardName = document.querySelector('#addCardInput').value;
+  let laneName = document.querySelector('#addCardDropdown').value;
+  if (!cardName.trim()) {
+    alert('Please enter a valid card name!');
+    document.querySelector('#addCardInput').value = '';
+  } else if (laneName === '') {
+    alert('Please select a lane!');
+    document.querySelector('#addCardDropdown').value = '';
+  } else {
+    let selectedLane = document.querySelector('#' + laneName);
+    let newCard = document.createElement('div');
+    newCard.classList.add('taskCard');
+    newCard.innerHTML =
+      '<p>' +
+      cardName +
+      '</p><div class="cardButtons"><button class="editCard"><i class="fa-solid fa-pen-to-square p-1"></i></button><button class="deleteCard"><i class="fa-solid fa-x p-1" style="color: #ff0000"></i></button></div>';
+    selectedLane.appendChild(newCard);
+    // Reset values
+    document.querySelector('#addCardInput').value = '';
+    document.querySelector('#addCardDropdown').value = '';
+  }
 }
 
-function setupCardDrag(card) {
-    card.addEventListener('dragstart', (e) => {
-        card.id = `card-${Date.now()}`; // Add temporary ID
-        e.dataTransfer.setData('cardId', card.id);
-    });
-
-    card.addEventListener('dragend', () => {
-        card.id = ''; // Remove temporary ID
-    });
-}
-
-// Lane Functions
-function createLane(laneName) {
-    // Create lane structure
-    const lane = document.createElement('div');
-    lane.className = 'col-md-6 mt-3';
-    
-    const laneId = `lane-${Date.now()}`;
-    const content = `
-        <div class="d-flex justify-content-between align-items-center">
-            <h4>${laneName}</h4>
-            <button class="btn btn-danger btn-sm">&times;</button>
-        </div>
-        <div class="lane bg-light" id="${laneId}"></div>
-    `;
-    lane.innerHTML = content;
-    
-    // Setup lane functionality
-    setupLaneDropping(lane.querySelector('.lane'));
-    setupLaneDelete(lane, laneId);
-    addLaneToDropdown(laneName, laneId);
-    
-    return lane;
-}
-
-function setupLaneDropping(laneDiv) {
-    laneDiv.addEventListener('dragover', (e) => e.preventDefault());
-    laneDiv.addEventListener('drop', (e) => {
-        e.preventDefault();
-        const card = document.getElementById(e.dataTransfer.getData('cardId'));
-        if (card) laneDiv.appendChild(card);
-    });
-}
-
-function setupLaneDelete(lane, laneId) {
-    lane.querySelector('button').onclick = () => {
-        lane.remove();
-        // Remove from dropdown
-        const option = elements.laneSelect.querySelector(`option[value="${laneId}"]`);
-        if (option) option.remove();
-    };
-}
-
-function addLaneToDropdown(laneName, laneId) {
-    const option = document.createElement('option');
-    option.value = laneId;
-    option.textContent = laneName;
-    elements.laneSelect.appendChild(option);
-}
-
-// Event Listeners
-elements.addCardButton.addEventListener('click', () => {
-    const taskName = elements.cardInput.value.trim();
-    const selectedLaneId = elements.laneSelect.value;
-    const selectedLane = document.getElementById(selectedLaneId);
-    
-    if (taskName) {
-        selectedLane.appendChild(createCard(taskName));
-        elements.cardInput.value = '';
-    } else {
-        alert('Please enter a task name');
+// Add Lane
+let addLaneButton = document.querySelector('#addLaneButton');
+addLaneButton.addEventListener('click', addLane);
+function addLane() {
+  let newLaneName = document.querySelector('#addLaneInput').value;
+  let newLaneNameLowerCase = newLaneName.toLowerCase();
+  newLaneNameLowerCase = newLaneNameLowerCase.replace(/\s+/g, '');
+  let duplicateCheck = true;
+  let selectDropdownOptions =
+    document.querySelector('#addCardDropdown').options;
+  for (let i = 0; i < selectDropdownOptions.length; i++) {
+    if (selectDropdownOptions[i].value === newLaneNameLowerCase) {
+      duplicateCheck = false;
+      break; // Exit the loop after removing the option
     }
+  }
+  if (!newLaneNameLowerCase.trim()) {
+    alert('Please enter a lane name!');
+    document.querySelector('#addLaneInput').value = '';
+  } else if (!duplicateCheck) {
+    alert(
+      'Duplicate or highly similar lane name! Please enter a different lane name.'
+    );
+    document.querySelector('#addLaneInput').value = '';
+  } else {
+    let laneDropdownOptions = document.querySelector('#addCardDropdown');
+    let newOption = document.createElement('option');
+    newOption.textContent = newLaneName;
+    newOption.value = newLaneNameLowerCase;
+    laneDropdownOptions.appendChild(newOption);
+    let laneSection = document.querySelector('#laneSection');
+    let newLane = document.createElement('div');
+    newLane.classList.add('col-md-6', 'mt-5');
+    // newLane.setAttribute("id", newLaneNameLowerCase);
+    // newLane.innerHTML = '<h4>' + newLaneName + '</h4><div class="lane" id='+newLaneNameLowerCase+'></div>';
+    newLane.innerHTML =
+      '<div class="d-flex justify-content-between"><h4>' +
+      newLaneName +
+      '</h4><div class="laneButtons"><button class="editLane"><i class="fa-solid fa-pen-to-square p-1"></i></button><button class="deleteLane"><i class="fa-solid fa-x p-1" style="color: #ff0000"></i></button></div></div><div class="lane" id=' +
+      newLaneNameLowerCase +
+      '></div>';
+    laneSection.appendChild(newLane);
+    document.querySelector('#addLaneInput').value = '';
+  }
+}
+
+// Delete Card
+document.querySelector('#laneSection').addEventListener('click', (e) => {
+  if (e.target.closest('.deleteCard')) {
+    e.target.closest('.taskCard').remove();
+  }
 });
 
-elements.addLaneButton.addEventListener('click', () => {
-    const laneName = elements.laneInput.value.trim();
-    if (laneName) {
-        elements.lanesContainer.appendChild(createLane(laneName));
-        elements.laneInput.value = '';
-    } else {
-        alert('Please enter a lane name');
-    }
+// Edit Card
+document.querySelector('#laneSection').addEventListener('click', (e) => {
+  if (e.target.closest('.editCard')) {
+    let newCardName = prompt('Enter new card name!');
+    e.target.closest('.taskCard').querySelector('p').textContent = newCardName;
+  }
 });
 
-// Setup initial lanes for drag and drop
-[elements.todoLane, elements.completedLane].forEach(lane => {
-    setupLaneDropping(lane);
+// Delete Lane
+document.querySelector('#laneSection').addEventListener('click', (e) => {
+  if (e.target.closest('.deleteLane')) {
+    let currentParentLane = e.target.closest('.col-md-6');
+
+    if (currentParentLane.querySelector('.lane').innerHTML.trim() === '') {
+      e.target.closest('.col-md-6').remove();
+      let currentLaneID = currentParentLane.querySelector('.lane').id;
+      // console.log(currentLaneID);
+      let laneDropdownOptions = document.querySelector('select').options;
+      for (let i = 0; i < laneDropdownOptions.length; i++) {
+        if (laneDropdownOptions[i].value === currentLaneID) {
+          laneDropdownOptions[i].remove(); // Removes the option with the specified value
+          break; // Exit the loop after removing the option
+        }
+      }
+    } else {
+      alert('The current lane is not empty!');
+    }
+  }
+});
+
+// Edit Lane
+document.querySelector('#laneSection').addEventListener('click', (e) => {
+  if (e.target.closest('.editLane')) {
+    let currentParentLane = e.target.closest('.col-md-6');
+    if (currentParentLane.querySelector('.lane').innerHTML.trim() === '') {
+      let newLaneName = prompt('Enter new card name!');
+      let newLaneNameLowerCase = newLaneName.toLowerCase().replace(/\s+/g, '');
+      // console.log(newLaneNameLowerCase);
+
+      let laneDropdownOptions = document.querySelector('select').options;
+      for (let i = 0; i < laneDropdownOptions.length; i++) {
+        if (
+          laneDropdownOptions[i].value ===
+          currentParentLane.querySelector('.lane').id
+        ) {
+          laneDropdownOptions[i].value = newLaneNameLowerCase; // Removes the option with the specified value
+          laneDropdownOptions[i].textContent = newLaneName;
+          break; // Exit the loop after removing the option
+        }
+      }
+      currentParentLane.querySelector('.lane').id = newLaneNameLowerCase;
+      currentParentLane.querySelector('h4').textContent = newLaneName;
+    } else {
+      alert(
+        'The current lane is not empty! Please delete cards before changing elements'
+      );
+    }
+  }
 });

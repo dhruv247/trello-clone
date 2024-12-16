@@ -1,10 +1,54 @@
-.lane {
-    min-height: 300px;
-    border: 1px dashed #ccc;
-    padding: 10px;
-    border-radius: 5px;
+body {
+    min-height: 100vh;
+    background: linear-gradient(to right, #1fb08c, #df6b6b);
   }
-  .card {
-    margin-bottom: 10px;
-    cursor: move;
-}
+  .lane {
+    background-color: white;
+    min-height: 300px;
+    border-radius: 15px;
+    border: 1px dashed;
+  }
+  .container {
+    background-color: rgb(241, 230, 213);
+    border-radius: 15px;
+    margin-top: 5%;
+    margin-bottom: 100px;
+  }
+  .inputDesign {
+    border-radius: 5px;
+    border: 1px solid black;
+    padding: 1%;
+  }
+  .taskCard {
+    border: 1px solid black;
+    margin: 5px;
+    display: flex;
+    border-radius: 15px;
+    justify-content: space-between;
+    padding: 2%;
+    align-items: center;
+  }
+  .taskCard p {
+    margin: 0;
+  }
+
+  .cardButtons button {
+    background: none; /* Remove background */
+    border: none; /* Remove border */
+    padding: 0; /* Remove padding */
+    margin: 0; /* Remove margin */
+    box-shadow: none; /* Remove box-shadow */
+    color: inherit; /* Use the parent element's text color */
+    font: inherit; /* Use the parent element's font */
+    cursor: pointer; /* Keep the pointer behavior */
+  }
+  .laneButtons button {
+    background: none; /* Remove background */
+    border: none; /* Remove border */
+    padding: 0; /* Remove padding */
+    margin: 0; /* Remove margin */
+    box-shadow: none; /* Remove box-shadow */
+    color: inherit; /* Use the parent element's text color */
+    font: inherit; /* Use the parent element's font */
+    cursor: pointer; /* Keep the pointer behavior */
+  }
