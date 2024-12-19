@@ -4,14 +4,18 @@ addCardButton.addEventListener('click', addCard);
 function addCard() {
   let cardName = document.querySelector('#addCardInput').value;
   let laneName = document.querySelector('#addCardDropdown').value;
+
+  // to check that name is not an empty string ("" means false in js)
   if (!cardName.trim()) {
     alert('Please enter a valid card name!');
-    document.querySelector('#addCardInput').value = '';
+    document.querySelector('#addCardInput').value = ''; // Reset field
+    // forces lane selection
   } else if (laneName === '') {
     alert('Please select a lane!');
-    document.querySelector('#addCardDropdown').value = '';
+    // card name is valid
   } else {
-    let selectedLane = document.querySelector('#' + laneName);
+    let selectedLane = document.querySelector('#' + laneName); // convert lane to id (html usage) form
+    // New Card Structure and content
     let newCard = document.createElement('div');
     newCard.classList.add('taskCard');
     newCard.innerHTML =
@@ -19,9 +23,45 @@ function addCard() {
       cardName +
       '</p><div class="cardButtons"><button class="editCard"><i class="fa-solid fa-pen-to-square p-1"></i></button><button class="deleteCard"><i class="fa-solid fa-x p-1" style="color: #ff0000"></i></button></div>';
     selectedLane.appendChild(newCard);
-    // Reset values
+    // Reset Fields
     document.querySelector('#addCardInput').value = '';
     document.querySelector('#addCardDropdown').value = '';
+  }
+}
+
+// lane name validity check
+function validLaneName(newLaneNameLowerCase) {
+  // Duplicate lane name check as an arrow function
+  const duplicateLaneCheck = (newLaneName) => {
+    let selectDropdownOptions = document.querySelector('#addCardDropdown').options;
+    for (let i = 0; i < selectDropdownOptions.length; i++) {
+      if (selectDropdownOptions[i].value === newLaneName) {
+        return true;
+      }
+    }
+    return false; // Return false if no duplicates found
+  };
+
+  if (!newLaneNameLowerCase.trim()) {
+    alert('Please enter a lane name!');
+    document.querySelector('#addLaneInput').value = '';
+    return false;
+  } else if (duplicateLaneCheck(newLaneNameLowerCase)) {
+    alert(
+      'Duplicate or highly similar lane name! Please enter a different lane name.'
+    );
+    document.querySelector('#addLaneInput').value = '';
+    return false;
+  }
+  // Additional checks (Due to restrictions on id naming)
+  else if (/^\d|[.,]/.test(newLaneNameLowerCase)) {
+    alert(
+      'Lane name starts with a number of contains "," or "."! Please enter a new lane name.'
+    );
+    document.querySelector('#addLaneInput').value = '';
+    return false;
+  } else {
+    return true;
   }
 }
 
@@ -30,36 +70,24 @@ let addLaneButton = document.querySelector('#addLaneButton');
 addLaneButton.addEventListener('click', addLane);
 function addLane() {
   let newLaneName = document.querySelector('#addLaneInput').value;
-  let newLaneNameLowerCase = newLaneName.toLowerCase();
-  newLaneNameLowerCase = newLaneNameLowerCase.replace(/\s+/g, '');
-  let duplicateCheck = true;
-  let selectDropdownOptions =
-    document.querySelector('#addCardDropdown').options;
-  for (let i = 0; i < selectDropdownOptions.length; i++) {
-    if (selectDropdownOptions[i].value === newLaneNameLowerCase) {
-      duplicateCheck = false;
-      break; // Exit the loop after removing the option
-    }
+  let newLaneNameLowerCase = newLaneName.toLowerCase(); // formatting for id (html usage) format
+  newLaneNameLowerCase = newLaneNameLowerCase.replace(/\s+/g, ''); // Remove spaces for formatting for id
+  // check if lane is not valid
+  if (!validLaneName(newLaneNameLowerCase)) {
+    // function carries out checks
   }
-  if (!newLaneNameLowerCase.trim()) {
-    alert('Please enter a lane name!');
-    document.querySelector('#addLaneInput').value = '';
-  } else if (!duplicateCheck) {
-    alert(
-      'Duplicate or highly similar lane name! Please enter a different lane name.'
-    );
-    document.querySelector('#addLaneInput').value = '';
-  } else {
+  // all checks pass
+  else {
     let laneDropdownOptions = document.querySelector('#addCardDropdown');
+    // creating new option structure for lane selection dropdown
     let newOption = document.createElement('option');
     newOption.textContent = newLaneName;
     newOption.value = newLaneNameLowerCase;
     laneDropdownOptions.appendChild(newOption);
+    // creating a lane in the lane section
     let laneSection = document.querySelector('#laneSection');
     let newLane = document.createElement('div');
     newLane.classList.add('col-md-6', 'mt-5');
-    // newLane.setAttribute("id", newLaneNameLowerCase);
-    // newLane.innerHTML = '<h4>' + newLaneName + '</h4><div class="lane" id='+newLaneNameLowerCase+'></div>';
     newLane.innerHTML =
       '<div class="d-flex justify-content-between"><h4>' +
       newLaneName +
@@ -67,7 +95,7 @@ function addLane() {
       newLaneNameLowerCase +
       '></div>';
     laneSection.appendChild(newLane);
-    document.querySelector('#addLaneInput').value = '';
+    document.querySelector('#addLaneInput').value = ''; // Reset field
   }
 }
 
@@ -89,20 +117,23 @@ document.querySelector('#laneSection').addEventListener('click', (e) => {
 // Delete Lane
 document.querySelector('#laneSection').addEventListener('click', (e) => {
   if (e.target.closest('.deleteLane')) {
-    let currentParentLane = e.target.closest('.col-md-6');
+    let currentParentLane = e.target.closest('.col-md-6'); // Selects the lane div
 
+    // checks if the lane contains any cards
     if (currentParentLane.querySelector('.lane').innerHTML.trim() === '') {
       e.target.closest('.col-md-6').remove();
+      // Remove the lane from the dropdown
       let currentLaneID = currentParentLane.querySelector('.lane').id;
-      // console.log(currentLaneID);
       let laneDropdownOptions = document.querySelector('select').options;
       for (let i = 0; i < laneDropdownOptions.length; i++) {
         if (laneDropdownOptions[i].value === currentLaneID) {
           laneDropdownOptions[i].remove(); // Removes the option with the specified value
-          break; // Exit the loop after removing the option
+          break;
         }
       }
-    } else {
+    }
+    // If the lane contains any cards
+    else {
       alert('The current lane is not empty!');
     }
   }
@@ -111,26 +142,33 @@ document.querySelector('#laneSection').addEventListener('click', (e) => {
 // Edit Lane
 document.querySelector('#laneSection').addEventListener('click', (e) => {
   if (e.target.closest('.editLane')) {
-    let currentParentLane = e.target.closest('.col-md-6');
+    let currentParentLane = e.target.closest('.col-md-6'); // Selects the lane div
+    // Checks if lane is empty
     if (currentParentLane.querySelector('.lane').innerHTML.trim() === '') {
       let newLaneName = prompt('Enter new card name!');
       let newLaneNameLowerCase = newLaneName.toLowerCase().replace(/\s+/g, '');
-      // console.log(newLaneNameLowerCase);
-
-      let laneDropdownOptions = document.querySelector('select').options;
-      for (let i = 0; i < laneDropdownOptions.length; i++) {
-        if (
-          laneDropdownOptions[i].value ===
-          currentParentLane.querySelector('.lane').id
-        ) {
-          laneDropdownOptions[i].value = newLaneNameLowerCase; // Removes the option with the specified value
-          laneDropdownOptions[i].textContent = newLaneName;
-          break; // Exit the loop after removing the option
+      // check if the new (edited) lane name is valid
+      if (validLaneName(newLaneNameLowerCase)) {
+        // checks have passed
+        let laneDropdownOptions = document.querySelector('select').options;
+        // change name in the lane dropdown
+        for (let i = 0; i < laneDropdownOptions.length; i++) {
+          if (
+            laneDropdownOptions[i].value ===
+            currentParentLane.querySelector('.lane').id
+          ) {
+            laneDropdownOptions[i].value = newLaneNameLowerCase;
+            laneDropdownOptions[i].textContent = newLaneName;
+            break;
+          }
         }
+        // change name on the lane heading lane id
+        currentParentLane.querySelector('.lane').id = newLaneNameLowerCase;
+        currentParentLane.querySelector('h4').textContent = newLaneName;
       }
-      currentParentLane.querySelector('.lane').id = newLaneNameLowerCase;
-      currentParentLane.querySelector('h4').textContent = newLaneName;
-    } else {
+    }
+    // Lane is not empty
+    else {
       alert(
         'The current lane is not empty! Please delete cards before changing elements'
       );
